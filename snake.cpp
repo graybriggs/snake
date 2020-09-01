@@ -2,6 +2,13 @@
 #include "config.h"
 #include "snake.h"
 
+void prepare_snake(Snake& snake) {
+	SnakeNode head(Config::SCREEN_WIDTH / 2, Config::SCREEN_HEIGHT / 2, true);
+	head.setDirection(rand_direction());
+	head.setState(SnakeState::ALIVE);
+	snake.add(head);
+}
+
 void move_snake(std::deque<SnakeNode>& s) {
 
 	SnakeNode& head = s[0];
@@ -87,10 +94,10 @@ bool check_opposite_turn(const SnakeNode& snake_head, const SnakeDirection next_
 }
 
 
- void handle_event(std::deque<SnakeNode>& snake, SDL_Event* event) {
-	 SnakeDirection direction = snake[0].getDirection();
+ void handle_event(Snake& snake, SDL_Event* event) {
+	 SnakeDirection direction = snake.getHead().getDirection();
 
-	 SnakeNode& head = snake[0];
+	 SnakeNode& head = snake.getRawSnake()[0];
 
 	 SDL_Keycode key = event->key.keysym.sym;
 
@@ -111,7 +118,7 @@ bool check_opposite_turn(const SnakeNode& snake_head, const SnakeDirection next_
 		 head.setDirection(SnakeDirection::RIGHT);
 	 }
 
-	 for (auto& sn : snake) {
+	 for (auto& sn : snake.getSnake()) {
 		 sn.setDirection(head.getDirection());
 	 }
 	
@@ -146,11 +153,11 @@ SnakeDirection rand_direction() {
 
 Food generate_food() {
 
-	int x = rand() % 32;
-	int y = rand() % 24;
+	int x = rand() % 20;
+	int y = rand() % 15;
 
-	x *= 20;
-	y *= 20;
+	x *= 32;
+	y *= 32;
 
 	Food f;
 	f.box.x = x;
@@ -162,7 +169,21 @@ Food generate_food() {
 }
 
 bool snake_eats_food(const SnakeNode& head, const Food& food) {
-
 	return (head.getBox().x == food.box.x) && (head.getBox().y == food.box.y);
 }
 
+bool food_on_snake_check(const Snake& snake, const Food& food) {
+
+	for (auto& sn : snake.getSnake()) {
+		if (sn.getBox().x == food.box.x && sn.getBox().y == food.box.y)
+			return true;
+	}
+	return false;
+}
+
+void render_snake(SDL_Renderer* renderer, const Snake& snake) {
+	for (auto& snakeNode : snake.getSnake()) {
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &(snakeNode.getBox()));
+	}
+}
