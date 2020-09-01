@@ -33,11 +33,9 @@ int main(int argc, char* args[]) {
 	std::deque<SnakeNode> snake;
 
 	SnakeNode head(320, 240, true);
-	head.setDirection(SnakeDirection::RIGHT);
+	head.setDirection(rand_direction());
 	head.setState(SnakeState::ALIVE);
 	snake.push_back(head);
-
-	//head.direction = rand_direction();
 	
 	SDL_Event event;
 	bool done = false;
@@ -54,30 +52,15 @@ int main(int argc, char* args[]) {
 					done = true;
 					break;
 				}
-				
+
 				if (event.key.keysym.sym == SDLK_SPACE) {
 					SnakeNode next(snake[0].getBox().x, snake[0].getBox().y);
 					next.setDirection(snake[0].getDirection());
 					next.setState(SnakeState::ALIVE);
 					snake.push_back(next);
 				}
-				if (event.key.keysym.sym == SDLK_UP) {
-					if (!check_opposite_turn(snake[0], SnakeDirection::UP))
-						head.setDirection(SnakeDirection::UP);
-				}
-				else if (event.key.keysym.sym == SDLK_DOWN) {
-					if (!check_opposite_turn(snake[0], SnakeDirection::DOWN))
-						head.setDirection(SnakeDirection::DOWN);
-				}
-				else if (event.key.keysym.sym == SDLK_LEFT) {
-					if (!check_opposite_turn(snake[0], SnakeDirection::LEFT))
-						head.setDirection(SnakeDirection::LEFT);
-				}
-				else if (event.key.keysym.sym == SDLK_RIGHT) {
-					if (!check_opposite_turn(snake[0], SnakeDirection::RIGHT))
-						head.setDirection(SnakeDirection::RIGHT);
-				}
 
+				handle_event(snake, &event);
 			}
 		}
 
@@ -95,28 +78,23 @@ int main(int argc, char* args[]) {
 			food = generate_food();
 		}
 
-		move_snake(snake, head.getDirection());
+		move_snake(snake);
 
 		/////////////
 		// Render
 		/////////////
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-		SDL_RenderFillRect(renderer, &(food.box));
-
-		for (auto& snakeNode : snake) {
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-			SDL_RenderFillRect(renderer, &(snakeNode.getBox()));
-		}
+		clear_screen(renderer);
+		render_food(renderer, food);
+		render_snake(renderer, snake);
 
 		SDL_RenderPresent(renderer);
 		SDL_Delay(100);
+		/*
 		if ((SDL_GetTicks() - timer) < (1000 / 60)) {
 			SDL_Delay((1000 / 60) - (SDL_GetTicks() - timer));
 		}
+		*/
 	}
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
@@ -124,6 +102,22 @@ int main(int argc, char* args[]) {
 	return 0;
 }
 
+void clear_screen(SDL_Renderer* renderer) {
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+}
+
+void render_food(SDL_Renderer* renderer, const Food food) {
+	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_RenderFillRect(renderer, &(food.box));
+}
+
+void render_snake(SDL_Renderer* renderer, const std::deque<SnakeNode>& snake) {
+	for (auto& snakeNode : snake) {
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &(snakeNode.getBox()));
+	}
+}
 
 void cleanup(SDL_Window* window, SDL_Renderer* renderer) {
 	SDL_DestroyRenderer(renderer);

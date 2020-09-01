@@ -2,9 +2,10 @@
 #include "config.h"
 #include "snake.h"
 
-void move_snake(std::deque<SnakeNode>& s, SnakeDirection direction) {
+void move_snake(std::deque<SnakeNode>& s) {
 
 	SnakeNode& head = s[0];
+	SnakeDirection direction = head.getDirection();
 
 	if (s.size() < 2) {
 		SDL_Rect new_pos = calculate_position(head, direction);
@@ -64,11 +65,11 @@ SDL_Rect calculate_position(const SnakeNode s, const SnakeDirection direction) {
 	return newPosRect;
 }
 
-bool check_opposite_turn(const SnakeNode& snake_cur_pos, const SnakeDirection next_direction)
+bool check_opposite_turn(const SnakeNode& snake_head, const SnakeDirection next_direction)
 {
 	bool oppMove = false;
 
-	auto pos = snake_cur_pos.getDirection();
+	auto pos = snake_head.getDirection();
 
 	if ((pos == SnakeDirection::UP) && (next_direction == SnakeDirection::DOWN))
 		oppMove = true;
@@ -86,27 +87,34 @@ bool check_opposite_turn(const SnakeNode& snake_cur_pos, const SnakeDirection ne
 }
 
 
-SnakeDirection handle_event(SDL_Event event) {
-	SnakeDirection direction;
+ void handle_event(std::deque<SnakeNode>& snake, SDL_Event* event) {
+	 SnakeDirection direction = snake[0].getDirection();
 
-	switch (event.key.keysym.sym)
-	{
-	case SDLK_UP:
-		direction = SnakeDirection::UP;
-		break;
-	case SDLK_DOWN:
-		direction = SnakeDirection::DOWN;
-		break;
-	case SDLK_LEFT:
-		direction = SnakeDirection::LEFT;
-		break;
-	case SDLK_RIGHT:
-		direction = SnakeDirection::RIGHT;
-		break;
-	default:
-		;
-	}
-	return direction;
+	 SnakeNode& head = snake[0];
+
+	 SDL_Keycode key = event->key.keysym.sym;
+
+	 if (key == SDLK_UP) {
+		 //if (!check_opposite_turn(snake[0], SnakeDirection::UP))
+		 head.setDirection(SnakeDirection::UP);
+	 }
+	 else if (key == SDLK_DOWN) {
+		 //if (!check_opposite_turn(snake[0], SnakeDirection::DOWN))
+		 head.setDirection(SnakeDirection::DOWN);
+	 }
+	 else if (key == SDLK_LEFT) {
+		 //if (!check_opposite_turn(snake[0], SnakeDirection::LEFT))
+		 head.setDirection(SnakeDirection::LEFT);
+	 }
+	 else if (key == SDLK_RIGHT) {
+		 //if (!check_opposite_turn(snake[0], SnakeDirection::RIGHT))
+		 head.setDirection(SnakeDirection::RIGHT);
+	 }
+
+	 for (auto& sn : snake) {
+		 sn.setDirection(head.getDirection());
+	 }
+	
 }
 
 SnakeDirection rand_direction() {
@@ -138,11 +146,11 @@ SnakeDirection rand_direction() {
 
 Food generate_food() {
 
-	int x = rand() % 20;
-	int y = rand() % 15;
+	int x = rand() % 32;
+	int y = rand() % 24;
 
-	x *= 32;
-	y *= 32;
+	x *= 20;
+	y *= 20;
 
 	Food f;
 	f.box.x = x;

@@ -13,7 +13,6 @@ struct Food {
 	SDL_Rect box;
 };
 
-
 enum class SnakeDirection {
 	UP,
 	DOWN,
@@ -75,10 +74,10 @@ private:
 
 
 
-void move_snake(std::deque<SnakeNode>&, SnakeDirection);
+void move_snake(std::deque<SnakeNode>&);
 SDL_Rect calculate_position(const SnakeNode, const SnakeDirection);
 bool check_opposite_turn(const SnakeNode&, const SnakeDirection);
-SnakeDirection handle_event(SDL_Event event);
+void handle_event(std::deque<SnakeNode>& head, SDL_Event* event);
 SnakeDirection rand_direction();
 bool snake_eats_food(const SnakeNode& head, const Food& food);
 Food generate_food();
