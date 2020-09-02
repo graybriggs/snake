@@ -2,18 +2,16 @@
 #ifndef GAME_H
 #define GAME_H
 
-static SDL_Window* window;
-static SDL_Renderer* renderer;
+#include <SDL.h>
 
-void setup();
-void shutdown();
+enum class GameStates;
+class MyApp;
 
-bool front_menu(GameStates& current_states);
-bool snake_game(GameStates& current_state);
-bool score_screen(GameStates& current_state);
+bool menu(MyApp& app, GameStates& current_states);
+bool snake_game(MyApp& app, GameStates& current_state);
+bool score_screen(MyApp& app, GameStates& current_state);
 
 void game();
 
-void render(SDL_Renderer* renderer);
 
 #endif

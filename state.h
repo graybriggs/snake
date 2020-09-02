@@ -9,11 +9,7 @@ enum class GameStates {
 	SCORE
 };
 
-void change_state(GameStates to) {
-
-
-
-}
+void change_state(GameStates& current, const GameStates to);
 
 
 #endif

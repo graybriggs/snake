@@ -2,29 +2,21 @@
 #include "config.h"
 #include "snake.h"
 
-void prepare_snake(Snake& snake) {
-	SnakeNode head(Config::SCREEN_WIDTH / 2, Config::SCREEN_HEIGHT / 2, true);
-	head.setDirection(rand_direction());
-	head.setState(SnakeState::ALIVE);
-	snake.add(head);
-}
+void move_snake(Snake& snake) {
 
-void move_snake(std::deque<SnakeNode>& s) {
-
-	SnakeNode& head = s[0];
+	SnakeNode& head = snake.getRawSnake()[0];
 	SnakeDirection direction = head.getDirection();
 
-	if (s.size() < 2) {
-		SDL_Rect new_pos = calculate_position(head, direction);
-		head.setBox(new_pos);
+	if (snake.getSnakeLength() < 2) {
+		head.setBox(calculate_position(head, direction));
 	}
 	else {
-		SnakeNode back = s.back();
-		s.pop_back();
+		SnakeNode& back = snake.getRawSnake().back();
+		snake.getRawSnake().pop_back();
 		back.setBox(calculate_position(head, direction));
-		s.push_front(back);
+		back.setDirection(direction);
+		snake.getRawSnake().push_front(back);
 	}
-	head.setDirection(direction);
 }
 
 SDL_Rect check_screen_collision(SDL_Rect r)
@@ -124,31 +116,31 @@ bool check_opposite_turn(const SnakeNode& snake_head, const SnakeDirection next_
 	
 }
 
-SnakeDirection rand_direction() {
+ SnakeDirection rand_direction() {
 
-	int dir = rand() % 4;
+	 int dir = rand() % 4;
 
-	SnakeDirection direction;
+	 SnakeDirection direction;
 
-	switch (dir)
-	{
-	case 0:
-		direction = SnakeDirection::UP;
-		break;
-	case 1:
-		direction = SnakeDirection::DOWN;
-		break;
-	case 2:
-		direction = SnakeDirection::LEFT;
-		break;
-	case 3:
-		direction = SnakeDirection::RIGHT;
-		break;
-	default:
-		;
-	}
-	return direction;
-}
+	 switch (dir)
+	 {
+	 case 0:
+		 direction = SnakeDirection::UP;
+		 break;
+	 case 1:
+		 direction = SnakeDirection::DOWN;
+		 break;
+	 case 2:
+		 direction = SnakeDirection::LEFT;
+		 break;
+	 case 3:
+		 direction = SnakeDirection::RIGHT;
+		 break;
+	 default:
+		 ;
+	 }
+	 return direction;
+ }
 
 
 Food generate_food() {
@@ -181,9 +173,3 @@ bool food_on_snake_check(const Snake& snake, const Food& food) {
 	return false;
 }
 
-void render_snake(SDL_Renderer* renderer, const Snake& snake) {
-	for (auto& snakeNode : snake.getSnake()) {
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-		SDL_RenderFillRect(renderer, &(snakeNode.getBox()));
-	}
-}

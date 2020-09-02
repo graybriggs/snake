@@ -9,9 +9,6 @@
 constexpr int SQUARE_W = 32;
 constexpr int SQUARE_H = 32;
 
-struct Food {
-	SDL_Rect box;
-};
 
 enum class SnakeDirection {
 	UP,
@@ -21,9 +18,16 @@ enum class SnakeDirection {
 	STATIONARY
 };
 
+SnakeDirection rand_direction();
+
 enum class SnakeState {
 	ALIVE,
 	DEAD
+};
+
+
+struct Food {
+	SDL_Rect box;
 };
 
 class SnakeNode {
@@ -41,14 +45,6 @@ public:
 		box.y = posy;
 		box.w = SQUARE_W;
 		box.h = SQUARE_H;
-	}
-
-	SnakeNode getPenultimateNode(std::deque<SnakeNode>& s) const {
-		return s[s.size() - 1];
-	}
-
-	SnakeNode getLastNode(std::deque<SnakeNode>& s) const {
-		return s.back();
 	}
 
 	SDL_Rect getBox() const {
@@ -82,6 +78,15 @@ private:
 class Snake {
 public:
 
+	Snake() {
+		SnakeNode head(Config::SCREEN_WIDTH / 2, Config::SCREEN_HEIGHT / 2, true);
+		head.setDirection(rand_direction());
+		head.setState(SnakeState::ALIVE);
+		snake.push_back(head);
+	}
+
+
+
 	SnakeNode getHead() {
 		return snake[0];
 	}
@@ -98,25 +103,22 @@ public:
 		snake.push_back(node);
 	}
 
+	std::size_t getSnakeLength() const {
+		return snake.size();
+	}
+
 
 private:
 	std::deque<SnakeNode> snake;
 };
 
-
-void prepare_snake(Snake&);
 void move_snake(Snake&);
 SDL_Rect calculate_position(const SnakeNode, const SnakeDirection);
 bool check_opposite_turn(const SnakeNode&, const SnakeDirection);
 void handle_event(Snake& head, SDL_Event* event);
-SnakeDirection rand_direction();
 bool snake_eats_food(const SnakeNode& head, const Food& food);
 Food generate_food();
 bool food_on_snake_check(const Snake& snake, const Food& food);
 
-
-//
-void render_food(SDL_Renderer* renderer, const Food food);
-void render_snake(SDL_Renderer* renderer, const Snake& snake);
 
 #endif // !SNAKE_H
